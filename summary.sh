@@ -21,7 +21,7 @@ o=${2:-c} #simplification option, option "c" means simplifying for t conflicts, 
 t=${3:-100000} #conflicts for which to simplify each time CaDiCal is called, or % of variables to eliminate
 s=${4:-2} #by default we only simplify the instance using CaDiCaL after adding noncanonical blocking clauses
 b=${5:-2} #by default we generate noncanonical blocking clauses in real time
-r=${6:-0} #number of variables to eliminate until the cubing terminates
+r=${6:-40} #number of variables to eliminate until the cubing terminates
 
 function readtime() {
 	#tmp=$(grep "CPU" $2 2>/dev/null | xargs | cut -d' ' -f4)
@@ -87,3 +87,9 @@ fi
 printf " n    Solving   Simplifying   Cubing \n"
 
 printf "%1d %10.2f m %10.2f m %10.2f m\n" $n "$run" "$simptime" "$cubetime"
+
+# grep -h "CPU time* *[0-9]*\.*[0-9]*" slurm-*.out | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
+# grep -h "c time * *[0-9]*\.*[0-9]*" *.log | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
+# grep -h "c total process time since initialization: * *[0-9]*\.*[0-9]*" *.simp | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
+
+# grep -h "CPU time* *[0-9]*\.*[0-9]*" slurm-*.out | awk '{print $(NF-1)}' > out_times.txt
