@@ -1,0 +1,65 @@
+int get_signedBranchVariable () {
+  int i, maxDiffVar, maxDiffSide;
+  double maxDiffScore, diffScore, left, right;
+
+/* set maxDiffScore to unreachable minimum */
+  maxDiffScore = -1;
+  maxDiffVar   =  0;
+  maxDiffSide  =  0;
+
+//	printf("c get_signedbranch %i (%i)\n", nodeCount, lookaheadArrayLength );
+
+  int only_reduced_variables_flag = 0;
+  if (gah) only_reduced_variables_flag = 1;
+
+  do {
+    for (i = 0; i < lookaheadArrayLength; i++) {
+      int varnr = lookaheadArray[ i ];
+
+      if (gah) { // global autarky heuristic
+	if ((only_reduced_variables_flag == 1) &&
+	    (VeqDepends[ varnr ] == EQUIVALENT)) continue;
+
+	if ((only_reduced_variables_flag == 1) &&
+	    (TernaryImpReduction[ varnr] == 0) &&
+	    (TernaryImpReduction[-varnr] == 0))
+          continue; }
+
+       if (IS_NOT_FORCED(varnr)) {
+#ifdef EVAL_VAR
+         left  = NBCounter[ varnr];
+         right = NBCounter[-varnr];
+#else
+         left  = 1024 * WNBCounter[ varnr] + 0.0;
+         right = 1024 * WNBCounter[-varnr] + 0.0;
+#endif
+         diffScore = left * right + left + right;
+         printf("\nalphasat: variable: %i, w-left: %f, w-right: %f", varnr, (float) WNBCounter[ varnr], (float) WNBCounter[-varnr]);
+         printf("\nvariable: %i, left: %f, right: %f", varnr, (float) NBCounter[ varnr], (float) NBCounter[-varnr]);
+         printf("\nvariable %i with score %f", varnr, (float) diffScore);
+
+         if (diffScore > maxDiffScore) {
+           maxDiffScore = diffScore;
+           maxDiffVar   = varnr;
+           maxDiffSide  = (left > right)? -1 : 1; } } }
+      only_reduced_variables_flag--;
+    } while ((maxDiffVar == 0) && (only_reduced_variables_flag >= 0));
+
+#ifdef FLIP_UNBALANCE
+    {
+	double bias;
+	left  = WNBCounter[  maxDiffVar ] + 0.01;
+	right = WNBCounter[ -maxDiffVar ] + 0.01;
+
+	bias = left / right + right / left - 1.0;
+
+	if( bias > 6 ) maxDiffSide *= -1;
+    }
+#endif
+	printf("\nselected %i at %i with diff %f\n", maxDiffVar * maxDiffSide, nodeCount, (float) maxDiffScore );
+
+  if (seed && (rand () % 2))
+    maxDiffSide *= -1;
+
+  return maxDiffVar * maxDiffSide;
+}
