@@ -87,8 +87,6 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
             constraint_1 = ' '.join(str(value) for value in combination)
             cnf_file.write(constraint_1 + " 0\n")
             clause_count += 1
-        if vs == 3:
-            tri_ind = ind
     """if fixed:
         mid_tri_lst = list(combinations(tri_ind, 3))
         #for each 3-combination of the indicator variables in ind_var_dict (i1, i2, i3), encode the clause (i1 and i2 and i3) -> triangle ind_var_dict[i1], ind_var_dict[i2], ind_var_dict[i3]
