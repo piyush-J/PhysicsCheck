@@ -19,13 +19,15 @@ def generate_combinations(lst):
             result.add(tuple(sorted(items)))
     return list(result)
 
-def conway(n, edge_dict, tri_dict, vs, t, cnf, var_count, fixed = False):
+def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
     #at least vs vertices are connected to at least t triangles
     clause_count = 0
     cnf_file = open(cnf, 'a+')
     vertices_lst = list(range(1, n+1))
+    all_tri = list(itertools.combinations(vertices_lst, 3))
+    t = max(count_dict.values())
+    extra_var_dict_master = {}
 
-    #needed if triangle constraint is not on
     """for triangle in list(itertools.combinations(vertices_lst, 3)):
         # the following encoding are applied in every possible triangle in the graph
         # given a triangle, if encode the equivalence relation
@@ -42,9 +44,7 @@ def conway(n, edge_dict, tri_dict, vs, t, cnf, var_count, fixed = False):
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_3]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} {} {} 0\n'.format(str(-edge_dict[edge_1]), str(-edge_dict[edge_2]), str(-edge_dict[edge_3]), str(tri_dict[triangle])))
         clause_count += 4"""
-    all_tri = list(itertools.combinations(vertices_lst, 3))
-    ind = []
-    ind_dict = {}
+
     for v in range(1, n+1):
         v_tri_lst = [tri for tri in all_tri if v in tri] #triangles containing v
         #want to include that at least t of the vars are True
@@ -72,15 +72,21 @@ def conway(n, edge_dict, tri_dict, vs, t, cnf, var_count, fixed = False):
                 cnf_file.write(clause_3 + " 0\n")
                 cnf_file.write(clause_4 + " 0\n")
                 clause_count += 4
-        ind.append(extra_var_dict[(len(v_tri_lst),t)])
-        ind_dict[extra_var_dict[(len(v_tri_lst),t)]] = v
-
-    combinations_lst = list(combinations(ind, int(len(ind))-int(vs)+1))
-    # Print the combinations
-    for combination in combinations_lst:
-        constraint_1 = ' '.join(str(value) for value in combination)
-        cnf_file.write(constraint_1 + " 0\n")
-        clause_count += 1
+        extra_var_dict_master[v] = extra_var_dict
+    for vs in count_dict:
+        t = count_dict[vs]
+        ind = []
+        ind_dict = {}
+        for v in range(1, n+1):
+            extra_var_dict = extra_var_dict_master[v]
+            ind.append(extra_var_dict[(len(v_tri_lst),t)])
+            ind_dict[extra_var_dict[(len(v_tri_lst),t)]] = v
+        combinations_lst = list(combinations(ind, int(len(ind))-int(vs)+1))
+        # Print the combinations
+        for combination in combinations_lst:
+            constraint_1 = ' '.join(str(value) for value in combination)
+            cnf_file.write(constraint_1 + " 0\n")
+            clause_count += 1
     if fixed:
         mid_tri_lst = list(combinations(ind, 3))
         #for each 3-combination of the indicator variables in ind_var_dict (i1, i2, i3), encode the clause (i1 and i2 and i3) -> triangle ind_var_dict[i1], ind_var_dict[i2], ind_var_dict[i3]
