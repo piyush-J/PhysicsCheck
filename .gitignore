@@ -16,3 +16,5 @@ constraints_[0-9]*
 not_verified_[0-9]*
 verified.txt
 *.out
+seq_runs/
+arena_cubes_*
