@@ -87,18 +87,26 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
             constraint_1 = ' '.join(str(value) for value in combination)
             cnf_file.write(constraint_1 + " 0\n")
             clause_count += 1
-    """if fixed:
-        mid_tri_lst = list(combinations(tri_ind, 3))
-        #for each 3-combination of the indicator variables in ind_var_dict (i1, i2, i3), encode the clause (i1 and i2 and i3) -> triangle ind_var_dict[i1], ind_var_dict[i2], ind_var_dict[i3]
-        #not i1 or not i2 or not i3 or triangle 
-        for comb in mid_tri_lst:
-            i1, i2, i3 = comb[0], comb[1], comb[2]
-            tri_1, tri_2, tri_3 = ind_dict[i1], ind_dict[i2], ind_dict[i3]
-            if tri_1 != tri_2 and tri_1 != tri_3 and tri_2 != tri_3:
-                tri = [tri_1, tri_2, tri_3]
-                tri.sort()
-                clause = "-" + str(i1) + " " + "-" + str(i2) + " " + "-" + str(i3) + " " + str(tri_dict[(tri[0], tri[1], tri[2])])
-                print (clause)
-                cnf_file.write(clause + " 0\n")
-                clause_count += 1"""
+    if fixed:
+        clause = ""
+        for tri in all_tri:
+            ind_var = var_count
+            v1, v2, v3 = tri[0], tri[1], tri[2]
+            #ind_var <-> tri and v1 and v2 and v3
+            clause_1 = str(ind_var) + " -" + str(tri_dict[tri]) + " -" + str(v1) + " -" + str(v2) + " -" + str(v3)
+            clause_2 = "-" + str(ind_var) + " " + str(tri_dict[tri])
+            clause_3 = "-" + str(ind_var) + " " + str(v1)
+            clause_4 = "-" + str(ind_var) + " " + str(v2)
+            clause_5 = "-" + str(ind_var) + " " + str(v3)
+            cnf_file.write(clause_1 + " 0\n")
+            cnf_file.write(clause_2 + " 0\n")
+            cnf_file.write(clause_3 + " 0\n")
+            cnf_file.write(clause_4 + " 0\n")
+            cnf_file.write(clause_5 + " 0\n")
+            clause = clause + str(ind_var) + " "
+            clause_count += 5
+            var_count += 1
+        cnf_file.write(clause + "0")
+        clause_count += 1
+    
     return var_count, clause_count
