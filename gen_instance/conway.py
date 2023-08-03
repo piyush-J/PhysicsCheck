@@ -75,7 +75,6 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
         extra_var_dict_master[v] = extra_var_dict
     for vs in count_dict:
         t = count_dict[vs]
-        print (t)
         ind = []
         ind_dict = {}
         for v in range(1, n+1):
