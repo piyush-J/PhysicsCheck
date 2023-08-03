@@ -28,7 +28,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
     t = max(count_dict.values())
     extra_var_dict_master = {}
 
-    """for triangle in list(itertools.combinations(vertices_lst, 3)):
+    for triangle in list(itertools.combinations(vertices_lst, 3)):
         # the following encoding are applied in every possible triangle in the graph
         # given a triangle, if encode the equivalence relation
         v_1 = triangle[0]
@@ -43,7 +43,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_2]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_3]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} {} {} 0\n'.format(str(-edge_dict[edge_1]), str(-edge_dict[edge_2]), str(-edge_dict[edge_3]), str(tri_dict[triangle])))
-        clause_count += 4"""
+        clause_count += 4
 
     for v in range(1, n+1):
         v_tri_lst = [tri for tri in all_tri if v in tri] #triangles containing v
@@ -75,6 +75,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
         extra_var_dict_master[v] = extra_var_dict
     for vs in count_dict:
         t = count_dict[vs]
+        print (t)
         ind = []
         ind_dict = {}
         for v in range(1, n+1):
@@ -87,17 +88,21 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
             constraint_1 = ' '.join(str(value) for value in combination)
             cnf_file.write(constraint_1 + " 0\n")
             clause_count += 1
+        print (ind_dict)
     if fixed:
         clause = ""
         for tri in all_tri:
-            ind_var = var_count
+            ind_var = var_count + 1
             v1, v2, v3 = tri[0], tri[1], tri[2]
-            #ind_var <-> tri and v1 and v2 and v3
-            clause_1 = str(ind_var) + " -" + str(tri_dict[tri]) + " -" + str(v1) + " -" + str(v2) + " -" + str(v3)
+            v1_ind = next(key for key, value in ind_dict.items() if value == v1)
+            v2_ind = next(key for key, value in ind_dict.items() if value == v2)
+            v3_ind = next(key for key, value in ind_dict.items() if value == v3)
+            #ind_var <-> tri and ind_1 and ind_2 and ind_3
+            clause_1 = str(ind_var) + " -" + str(tri_dict[tri]) + " -" + str(v1_ind) + " -" + str(v2_ind) + " -" + str(v3_ind)
             clause_2 = "-" + str(ind_var) + " " + str(tri_dict[tri])
-            clause_3 = "-" + str(ind_var) + " " + str(v1)
-            clause_4 = "-" + str(ind_var) + " " + str(v2)
-            clause_5 = "-" + str(ind_var) + " " + str(v3)
+            clause_3 = "-" + str(ind_var) + " " + str(v1_ind)
+            clause_4 = "-" + str(ind_var) + " " + str(v2_ind)
+            clause_5 = "-" + str(ind_var) + " " + str(v3_ind)
             cnf_file.write(clause_1 + " 0\n")
             cnf_file.write(clause_2 + " 0\n")
             cnf_file.write(clause_3 + " 0\n")
