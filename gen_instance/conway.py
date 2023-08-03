@@ -88,7 +88,6 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
             constraint_1 = ' '.join(str(value) for value in combination)
             cnf_file.write(constraint_1 + " 0\n")
             clause_count += 1
-        print (ind_dict)
     if fixed:
         clause = ""
         for tri in all_tri:
