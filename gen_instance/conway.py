@@ -66,7 +66,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
                 clause_1 = "-" + str(extra_var_dict[(i-1,j)]) + " " + str(extra_var_dict[(i,j)])
                 clause_2 = "-" + str(tri_dict[v_tri_lst[i-1]]) + " " + "-" + str(extra_var_dict[(i-1,j-1)]) + " " + str(extra_var_dict[(i,j)])
                 clause_3 = "-" + str(extra_var_dict[(i,j)]) + " " + str(extra_var_dict[(i-1,j)]) + " " + str(tri_dict[v_tri_lst[i-1]])
-                clause_4 = "-" + str(extra_var_dict[(i,j)]) + " " + str(extra_var_dict[(i-1,j)]) + " " + str(extra_var_dict[(i-1,j-1)])
+                clause_4 = "-" + str(extra_var_dict[(i,j)]) + " " + str(extra_var_dict[(i-1,j-1)])
                 cnf_file.write(clause_1 + " 0\n")
                 cnf_file.write(clause_2 + " 0\n")
                 cnf_file.write(clause_3 + " 0\n")
