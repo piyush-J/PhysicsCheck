@@ -27,7 +27,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
     all_tri = list(itertools.combinations(vertices_lst, 3))
     t = max(count_dict.values())
     extra_var_dict_master = {}
-
+    """
     for triangle in list(itertools.combinations(vertices_lst, 3)):
         # the following encoding are applied in every possible triangle in the graph
         # given a triangle, if encode the equivalence relation
@@ -44,7 +44,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_3]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} {} {} 0\n'.format(str(-edge_dict[edge_1]), str(-edge_dict[edge_2]), str(-edge_dict[edge_3]), str(tri_dict[triangle])))
         clause_count += 4
-
+    """
     for v in range(1, n+1):
         v_tri_lst = [tri for tri in all_tri if v in tri] #triangles containing v
         #want to include that at least t of the vars are True
