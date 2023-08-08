@@ -109,7 +109,7 @@ def conway(n, edge_dict, tri_dict, count_dict, cnf, var_count, fixed = False):
             clause = clause + str(ind_var) + " "
             clause_count += 5
             var_count += 1
-        cnf_file.write(clause + "0")
+        cnf_file.write(clause + "0\n")
         clause_count += 1
     
     return var_count, clause_count
