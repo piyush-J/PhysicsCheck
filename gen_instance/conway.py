@@ -62,7 +62,7 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
     t = max(max(sublist) for sublist in tri_count_lst)
     extra_var_dict_master = {}
 
-    for triangle in list(itertools.combinations(vertices_lst, 3)):
+    """for triangle in list(itertools.combinations(vertices_lst, 3)):
         # the following encoding are applied in every possible triangle in the graph
         # given a triangle, if encode the equivalence relation
         v_1 = triangle[0]
@@ -77,7 +77,7 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_2]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_3]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} {} {} 0\n'.format(str(-edge_dict[edge_1]), str(-edge_dict[edge_2]), str(-edge_dict[edge_3]), str(tri_dict[triangle])))
-        clause_count += 4
+        clause_count += 4"""
 
     for v in range(1, n+1):
         v_tri_lst = [tri for tri in all_tri if v in tri] #triangles containing v
@@ -110,10 +110,9 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
             clause_3 = "-" + str(ind_var) + " " + str(v1_ind)
             clause_4 = "-" + str(ind_var) + " " + str(v2_ind)
             clause_5 = "-" + str(ind_var) + " " + str(v3_ind)
-            clause_6 = "-" + str(ind_var) + " " + str(tri_dict[tri])
-            clause_7 = "-" + str(ind_var) + " " + "-" + str(v1_ind_2)
-            clause_8 = "-" + str(ind_var) + " " + "-" + str(v2_ind_2)
-            clause_9 = "-" + str(ind_var) + " " + "-" + str(v3_ind_2)
+            clause_6 = "-" + str(ind_var) + " " + "-" + str(v1_ind_2)
+            clause_7 = "-" + str(ind_var) + " " + "-" + str(v2_ind_2)
+            clause_8 = "-" + str(ind_var) + " " + "-" + str(v3_ind_2)
             cnf_file.write(clause_1 + " 0\n")
             cnf_file.write(clause_2 + " 0\n")
             cnf_file.write(clause_3 + " 0\n")
@@ -122,9 +121,8 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
             cnf_file.write(clause_6 + " 0\n")
             cnf_file.write(clause_7 + " 0\n")
             cnf_file.write(clause_8 + " 0\n")
-            cnf_file.write(clause_9 + " 0\n")
             clause = clause + str(ind_var) + " "
-            clause_count += 9
+            clause_count += 8
             var_count += 1
         cnf_file.write(clause + "0\n")
         clause_count += 1
