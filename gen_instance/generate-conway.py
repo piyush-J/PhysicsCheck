@@ -44,7 +44,7 @@ def generate(n):
     var_count, c_count = cubic(n, count, cnf_file) 
     clause_count += c_count
     print ("isomorphism blocking applied")
-    var_count, c_count = conway(n, edge_dict, tri_dict, {2: 4, 3: 3}, [[4,4,3], [3,3,3]], cnf_file, var_count) #at least 2 vertex is in 4 triangles
+    var_count, c_count = conway(n, edge_dict, tri_dict, [[3,3,4],[3,3,3]], cnf_file, var_count) #put smaller number first
     #first dict {a:b} says at least a vertices are in b triangles, #second nested_list [[2,2,3]] means there is a triangle where 
     #each vertex of this triangle is in exactly 2, 2, 3 triangles
     clause_count += c_count
