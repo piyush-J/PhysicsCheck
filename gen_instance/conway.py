@@ -64,7 +64,7 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
 
     #Encoding triangles, need to be uncommented when noncolorable.py is not called
 
-    for triangle in list(itertools.combinations(vertices_lst, 3)):
+    """for triangle in list(itertools.combinations(vertices_lst, 3)):
         # the following encoding are applied in every possible triangle in the graph
         # given a triangle, if encode the equivalence relation
         v_1 = triangle[0]
@@ -79,7 +79,7 @@ def conway(n, edge_dict, tri_dict, tri_count_lst, cnf, var_count):
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_2]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} 0\n'.format(str(edge_dict[edge_3]), str(-tri_dict[triangle])))
         cnf_file.write('{} {} {} {} 0\n'.format(str(-edge_dict[edge_1]), str(-edge_dict[edge_2]), str(-edge_dict[edge_3]), str(tri_dict[triangle])))
-        clause_count += 4
+        clause_count += 4"""
 
     #Encoding bowtie, such that triangle 1 and triangle 2 iff bowtie 12
     bowtie_dict = {}
