@@ -7,3 +7,15 @@ dependency-tools/
 gen_cubes/cadical/
 gen_cubes/march_cu/
 embedability/test.py
+
+simp/
+log/
+drat-trim/
+[0-9]*
+constraints_[0-9]*
+*.cubes
+not_verified_[0-9]*
+verified.txt
+*.out
+seq_runs/
+arena_cubes_*
