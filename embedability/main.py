@@ -173,10 +173,10 @@ def cross_constraint(a, b, c):
 def not_zero(a):
     return Or(a[0]!=0, a[1]!=0, a[2]!=0)
 
-def determine_embed(g, assignment, g_sat, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify):
+def determine_embed(g, assignments, g_sat, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify):
     """
     g: dictonary of vertices and their adjacent vertices
-    assignment: an assignment generated from find_assignments
+    assignment: assignment generateds from find_assignments
     g_sat: graph in the format of the output from MapleSAT
     order: order of the graph to solve
     index: which orthogonality assignment to start solving from, usually we set this to 0 and use the first assignment
@@ -186,6 +186,7 @@ def determine_embed(g, assignment, g_sat, order, index, using_subgraph, normaliz
     output_sat_f: file name to log embeddable graphs
     verify: option to verify embeddable graph's vector solutions, will log vector solutions and verification results to output_sat_f
     """
+    assignment = assignments[int(index)]
     s = Solver()
     ver = {}
     #revert assign dict
@@ -338,22 +339,23 @@ def main_single_graph(g, order, index, using_subgraph, normalize=False, output_u
         for v in list(G.nodes()):
             graph_dict[v] = (list(G.neighbors(v)))
         assignments = find_assignments(graph_dict)
-        assignment = assignments[int(index)]
-        determine_embed(graph_dict, assignment, g, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify) #write the file
+        determine_embed(graph_dict, assignments, g, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify) #write the file
     else:
         graph_dict = {}
         for v in list(G.nodes()):
             graph_dict[v] = (list(G.neighbors(v)))
         assignments = find_assignments(graph_dict)
-        assignment = assignments[int(index)]
-        determine_embed(graph_dict, assignment, g, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify) #write the file
+        determine_embed(graph_dict, assignments, g, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify) #write the file
 
 
-def main(file_to_solve, order, index, using_subgraph, normalize=False, output_unsat_f="output_unsat_f", output_sat_f="output_sat_f", verify=True):
+def main(file_to_solve, order, index, using_subgraph, normalize=False, output_unsat_f="output_unsat_f", output_sat_f="output_sat_f", verify=True, start=None, end=None):
     with open(file_to_solve) as f:
+        if start.isdigit() and end.isdigit():
+            print ("checking from graph " + str(start) + " to graph " + str(end))
+            f = f.readlines()[int(start) - 1:int(end)]
         for line in f:
             line = line.rstrip()
             main_single_graph(line, order, index, using_subgraph, normalize, output_unsat_f, output_sat_f, verify)
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]=="True", sys.argv[5]=="True", sys.argv[6], sys.argv[7], sys.argv[8]=="True")
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]=="True", sys.argv[5]=="True", sys.argv[6], sys.argv[7], sys.argv[8]=="True", sys.argv[9], sys.argv[10])
