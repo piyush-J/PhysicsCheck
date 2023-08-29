@@ -33,17 +33,6 @@ then
 	# Adjoin the literals in the current cube to the instance and simplify the resulting instance with CaDiCaL
 	./gen_cubes/apply.sh $f $dir/$((i-1)).cubes $c > $dir/$((i-1)).cubes$c
 	command="./cadical/build/cadical $dir/$((i-1)).cubes$c $dir/$((i-1)).cubes$c.drat -o $dir/$((i-1)).cubes$c.simp -e $dir/$((i-1)).cubes$c.ext -n -c 10000 > $logdir/$((i-1)).cubes$c.simp"
-	echo $command
-	eval $command
-	echo "$dir/$((i-1)).cubes$c is solved by CaDiCaL, thus verifying..."
-	./drat-trim/drat-trim "$dir/$((i-1)).cubes$c" "$dir/$((i-1)).cubes$c.drat" -f | tee log/$((i-1)).cubes$c.verify
-	echo "log/$((i-1)).cubes$c.verify"
-	if ! grep -E "s DERIVATION|s VERIFIED" -q log/$((i-1)).cubes$c.verify
-	then
-		echo "ERROR: Proof not verified"
-	fi
-	rm $dir/$((i-1)).cubes$c
-	rm "$dir/$((i-1)).cubes$c.drat"
 
 	if [ "$s" == "-m" ]
 	then
@@ -115,12 +104,14 @@ fi
 if grep -q "^0$" $dir/$((i-1)).cubes$c.simp
 then
 	removedvars=$m # Instance was unsatisfiable so all variables were removed
-	echo "  Depth $i instance $c was shown to be UNSAT; skipping"
+	echo "  Depth $i instance $c was shown to be UNSAT; skipping (verification needed, drat file and instance will not be removed)"
 	head $dir/$((i-1)).cubes -n $c | tail -n 1 > $dir/$i-$c.cubes
 	sed 's/a/u/' $dir/$i-$c.cubes -i # Mark cubes that have been shown to be unsatisfiable with 'u'
 	unsat=1
 else
-	# Determine how many edge variables were removed
+	# Determine how many edge variables were removed, remove .drat since no verification needed
+	rm "$dir/$((i-1)).cubes$c.drat"
+	rm $dir/$((i-1)).cubes$c
 	removedvars=$(sed -E 's/.* 0 [-]*([0-9]*) 0$/\1/' < $dir/$((i-1)).cubes$c.ext | awk "\$0<=$m" | sort | uniq | wc -l)
 fi
 
@@ -145,6 +136,5 @@ fi
 # Delete simplified instance if not needed anymore
 if [ -z $s ] || [ "$s" == "-m" ]
 then
-	rm $dir/$((i-1)).cubes$c.simp 2> /dev/null
 	rm $dir/$((i-1)).cubes$c.ext 2> /dev/null
 fi
