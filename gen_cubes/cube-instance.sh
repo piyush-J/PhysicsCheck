@@ -33,7 +33,8 @@ then
 	# Adjoin the literals in the current cube to the instance and simplify the resulting instance with CaDiCaL
 	./gen_cubes/apply.sh $f $dir/$((i-1)).cubes $c > $dir/$((i-1)).cubes$c
 	command="./cadical/build/cadical $dir/$((i-1)).cubes$c $dir/$((i-1)).cubes$c.drat -o $dir/$((i-1)).cubes$c.simp -e $dir/$((i-1)).cubes$c.ext -n -c 10000 > $logdir/$((i-1)).cubes$c.simp"
-
+	echo $command
+	eval $command
 	if [ "$s" == "-m" ]
 	then
 		# Run MapleSAT for 10000 conflicts to check if unsatisfiability can be discovered
@@ -85,7 +86,6 @@ then
 else
 	# Determine how many edge variables were removed, remove .drat since no verification needed
 	rm "$dir/$((i-1)).cubes$c.drat"
-	rm $dir/$((i-1)).cubes$c
 	removedvars=$(sed -E 's/.* 0 [-]*([0-9]*) 0$/\1/' < $dir/$((i-1)).cubes$c.ext | awk "\$0<=$m" | sort | uniq | wc -l)
 fi
 
