@@ -75,11 +75,13 @@ for i in $(seq 1 $new_index)
                 child_instance="$d/$v/simp/${highest_num}.cubes${i}.adj.simp"
                 echo "further cube instance $child_instance"
                 #add learnt clauses
-                ./gen_cubes/concat.sh $child_instance $child_instance.noncanonical > $child_instance.temp
-                ./gen_cubes/concat.sh $child_instance.temp $child_instance.unit > $child_instance.temp2
-                ./gen_cubes/concat.sh $child_instance.temp2 $child_instance.nonembed > $child_instance.learnt
-                rm $child_instance.temp
-                rm $child_instance.temp2
+                #./gen_cubes/concat.sh $child_instance $child_instance.noncanonical > $child_instance.temp
+                #./gen_cubes/concat.sh $child_instance.temp $child_instance.unit > $child_instance.temp2
+                #./gen_cubes/concat.sh $child_instance.temp2 $child_instance.nonembed > $child_instance.learnt
+                ./gen_cubes/concat.sh $child_instance $child_instance.noncanonical |
+    		./gen_cubes/concat.sh - $child_instance.unit |
+    		./gen_cubes/concat.sh - $child_instance.nonembed > $child_instance.learnt
+
                 command="./3-cube-merge-solve-iterative-learnt.sh $n $child_instance.learnt "$d/$v-$i" $(($v + $a)) $t $a $(($highest_num+2)) $new_cube_file"
                 #for parallization, simply submit the command below using sbatch
                 echo $command >> ${n}-iterative.commands

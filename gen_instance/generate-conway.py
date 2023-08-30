@@ -41,12 +41,12 @@ def generate(n):
     print ("graph is noncolorable")
     clause_count += mindegree(n, 3, edge_dict, cnf_file)
     print ("minimum degree of each vertex is 3")
-    var_count, c_count = cubic(n, count, cnf_file) 
-    clause_count += c_count
-    print ("isomorphism blocking applied")
-    var_count, c_count = conway(n, edge_dict, tri_dict, 2, 4, cnf_file, var_count) #at least 2 vertex is in 4 triangles
-    clause_count += c_count
-    var_count, c_count = conway(n, edge_dict, tri_dict, 3, 3, cnf_file, var_count, True) #at least 1 vertex is in 3 triangles
+    #var_count, c_count = cubic(n, count, cnf_file) 
+    var_count = count
+    clause_count += 0
+    #print ("isomorphism blocking applied")
+    var_count, c_count = conway(n, edge_dict, tri_dict, [4,4,3,3,2], cnf_file, var_count)
+    #there exist a bowtie such that 2 vertices are in at least 4 triangles, etc
     clause_count += c_count
     print ("conway constraint")
     firstline = 'p cnf ' + str(var_count) + ' ' + str(clause_count)

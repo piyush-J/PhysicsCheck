@@ -79,12 +79,13 @@ fi
 if grep -q "^0$" $dir/$((i-1)).cubes$c.simp
 then
 	removedvars=$m # Instance was unsatisfiable so all variables were removed
-	echo "  Depth $i instance $c was shown to be UNSAT; skipping"
+	echo "  Depth $i instance $c was shown to be UNSAT; skipping (verification needed, drat file and instance will not be removed)"
 	head $dir/$((i-1)).cubes -n $c | tail -n 1 > $dir/$i-$c.cubes
 	sed 's/a/u/' $dir/$i-$c.cubes -i # Mark cubes that have been shown to be unsatisfiable with 'u'
 	unsat=1
 else
-	# Determine how many edge variables were removed
+	# Determine how many edge variables were removed, remove .drat since no verification needed
+	rm "$dir/$((i-1)).cubes$c.drat"
 	removedvars=$(sed -E 's/.* 0 [-]*([0-9]*) 0$/\1/' < $dir/$((i-1)).cubes$c.ext | awk "\$0<=$m" | sort | uniq | wc -l)
 fi
 
@@ -107,7 +108,7 @@ then
 	head $dir/$((i-1)).cubes -n $c | tail -n 1 > $dir/$i-$c.cubes
 fi
 # Delete simplified instance if not needed anymore
-if [ -z $s ] || [ "$s" == "-m" ]
+if grep -q "^0$" $dir/$((i-1)).cubes$c.simp
 then
 	rm $dir/$((i-1)).cubes$c.simp 2> /dev/null
 	rm $dir/$((i-1)).cubes$c.ext 2> /dev/null

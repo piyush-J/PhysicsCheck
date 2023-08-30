@@ -26,10 +26,9 @@ def generate(n):
     count = 0
     clause_count = 0
     for j in range(1, n+1):             #generating the edge variables
-        for i in range(1, n+1):
-            if i < j:
-                count += 1
-                edge_dict[(i,j)] = count
+        for i in range(1, j):
+            count += 1
+            edge_dict[(i,j)] = count
     for a in range(1, n-1):             #generating the triangle variables
         for b in range(a+1, n):
             for c in range(b+1, n+1):
