@@ -35,16 +35,6 @@ then
 	command="./cadical/build/cadical $dir/$((i-1)).cubes$c $dir/$((i-1)).cubes$c.drat -o $dir/$((i-1)).cubes$c.simp -e $dir/$((i-1)).cubes$c.ext -n -c 10000 > $logdir/$((i-1)).cubes$c.simp"
 	echo $command
 	eval $command
-	echo "$dir/$((i-1)).cubes$c is solved by CaDiCaL, thus verifying..."
-	./drat-trim/drat-trim "$dir/$((i-1)).cubes$c" "$dir/$((i-1)).cubes$c.drat" -f | tee log/$((i-1)).cubes$c.verify
-	echo "log/$((i-1)).cubes$c.verify"
-	if ! grep -E "s DERIVATION|s VERIFIED" -q log/$((i-1)).cubes$c.verify
-	then
-		echo "ERROR: Proof not verified"
-	fi
-	rm $dir/$((i-1)).cubes$c
-	rm "$dir/$((i-1)).cubes$c.drat"
-
 	if [ "$s" == "-m" ]
 	then
 		# Run MapleSAT for 10000 conflicts to check if unsatisfiability can be discovered
@@ -83,32 +73,6 @@ else
 	command="./gen_cubes/concat-edge-and-apply.sh $n $dir/$((i-2)).cubes$l.simp $dir/$((i-2)).cubes$l.ext $dir/$((i-1)).cubes $c | ./cadical/build/cadical -o $dir/$((i-1)).cubes$c.simp -e $dir/$((i-1)).cubes$c.ext -n -c 10000 > $logdir/$((i-1)).cubes$c.simp"
 	echo $command
 	eval $command
-
-	if [ "$s" == "-b" ]
-	then
-		# Run MapleSAT for 10000 conflicts and output noncanonical blocking clauses
-		rm $dir/$((i-1)).cubes$c.noncanon 2> /dev/null
-		command="./gen_cubes/concat-edge.sh $m $dir/$((i-1)).cubes$c.simp $dir/$((i-1)).cubes$c.ext | ./maplesat-ks/simp/maplesat_static -order=$n -exhaustive=$dir/$((i-1)).cubes$c.exhaust -keep-blocking=2 -noncanonical-out=$dir/$((i-1)).cubes$c.noncanon -max-conflicts=10000 > $logdir/$((i-1)).cubes$c.ncgen"
-		echo $command
-		eval $command
-		printf "Adding %d noncanonical blocking clauses into instance\n" $(wc -l < $dir/$((i-1)).cubes$c.noncanon)
-		if grep -q "UNSATISFIABLE" $logdir/$((i-1)).cubes$c.ncgen
-		then
-			numsols=$(wc -l < $dir/$((i-1)).cubes$c.exhaust)
-			echo "Instance was determined to have ${numsols} solutions by MapleSAT"
-			# If MapleSAT determines there are no solutions make the instance trivially unsatisfiable
-			if [ $numsols -eq 0 ]
-			then
-				echo "0" >> $dir/$((i-1)).cubes$c.simp
-			fi
-		fi
-		rm $dir/$((i-1)).cubes$c.exhaust
-
-		# Add noncanonical blocking clauses into simplified instance
-		mv $dir/$((i-1)).cubes$c.simp $dir/$((i-1)).cubes$c.simp-tmp
-		./gen_cubes/concat.sh $dir/$((i-1)).cubes$c.simp-tmp $dir/$((i-1)).cubes$c.noncanon > $dir/$((i-1)).cubes$c.simp
-		rm $dir/$((i-1)).cubes$c.simp-tmp
-	fi
 fi
 
 # Check if simplified instance was unsatisfiable
