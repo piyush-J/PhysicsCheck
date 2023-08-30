@@ -108,7 +108,8 @@ then
 	head $dir/$((i-1)).cubes -n $c | tail -n 1 > $dir/$i-$c.cubes
 fi
 # Delete simplified instance if not needed anymore
-if [ -z $s ] || [ "$s" == "-m" ]
+if grep -q "^0$" $dir/$((i-1)).cubes$c.simp
 then
+	rm $dir/$((i-1)).cubes$c.simp 2> /dev/null
 	rm $dir/$((i-1)).cubes$c.ext 2> /dev/null
 fi
