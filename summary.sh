@@ -5,23 +5,15 @@ Description:
     Print out runtime summary given logs
 
 Usage:
-	<n>: #order
-	<o>: default c, simplification option, option "c" means simplifying for t conflicts, option "v" means simplify until t% of variables are eliminated
-	<t>: default 100000, conflicts for which to simplify each time CaDiCal is called, or % of variables to eliminate
-	<s>: default 2, by default we only simplify the instance using CaDiCaL after adding noncanonical blocking clauses
-	<b>: default 2, by default we generate noncanonical blocking clauses in real time
-	<r>: default 0, number of variables to eliminate until the cubing terminates
+	<n>: order
+	<d>: directory to check log files for
+	<r>: number of variables cubed. only used to determine locations of log files
 
-Note:
-	These variables are only used to identify the folder name of the logs
 " && exit
 
 n=$1 #order
-o=${2:-c} #simplification option, option "c" means simplifying for t conflicts, option "v" means simplify until t% of variables are eliminated
-t=${3:-100000} #conflicts for which to simplify each time CaDiCal is called, or % of variables to eliminate
-s=${4:-2} #by default we only simplify the instance using CaDiCaL after adding noncanonical blocking clauses
-b=${5:-2} #by default we generate noncanonical blocking clauses in real time
-r=${6:-40} #number of variables to eliminate until the cubing terminates
+d=$2 #directory to check
+r=$3 #number of variables cubed. only used to determine locations of log files
 
 function readtime() {
 	#tmp=$(grep "CPU" $2 2>/dev/null | xargs | cut -d' ' -f4)
@@ -37,9 +29,9 @@ function readtime() {
 	fi
 }
 
+dir=$d
 if [ "$r" != "0" ] 
 then
-    dir="${n}_${o}_${t}_${s}_${b}_${r}"
 	echo "expecting log files in '$dir/${n}-solve/'"
 	if [ ! -d $dir/${n}-solve ]
 	then
@@ -55,10 +47,10 @@ then
 
 	run=0
 	max_time=0
-	for logfile in $dir/${n}-solve/*-solve.log; do
+	for logfile in $dir/simp/*.log; do
 		# Extract simptime from current logfile and add it to the total
 		#time=$(grep "CPU time" "$logfile" | awk '{$1=$1};1' | cut -d' ' -f7 | paste -sd+)
-		time=$(grep "CPU time" "$logfile" | grep -oP '\d+\.\d{3}')
+		time=$(grep "CPU time" "$logfile" | grep -oP '\d+\.\d+')
 		time=$(echo "($time)/60" | bc -l)
 		run=$(echo "$run + $time" | bc)
 		max_time=$(awk -v t=$time -v max=$max_time 'BEGIN{print (t>max)?t:max}')
@@ -73,23 +65,17 @@ then
 else
     echo "expecting log files in the main directory"
 	cubetime=0
-	if [ ! -f constraints_${n}_${o}_${t}_${s}_${b}_${r}_final.simp.log ]
+	if [ ! -f constraints_${dir}_final.simp.log ]
 	then
-		echo "log file 'constraints_${n}_${o}_${t}_${s}_${b}_${r}_final.simp.log' not found"
+		echo "log file 'constraints_${dir}_final.simp.log' not found"
 		exit 0
 	fi
-	readtime "run" "constraints_${n}_${o}_${t}_${s}_${b}_${r}_final.simp.log"
-	simptime=$(grep "total process time since initialization" log/constraints_${n}_${o}_${t}_${s}_${b}_${r}.noncanonical.simp* | awk '{$1=$1};1' | cut -d' ' -f7 | paste -sd+)
+	readtime "run" "constraints_${dir}_final.simp.log"
+	simptime=$(grep "total process time since initialization" log/constraints_${dir}.noncanonical.simp* | awk '{$1=$1};1' | cut -d' ' -f7 | paste -sd+)
 	simptime=$(echo "($simptime)/60" | bc -l)
-	#run=$(grep "CPU time" log/constraints_${n}_${o}_${t}_${s}_${b}_${r}.noncanonical.simp* | grep -oP '\d+\.\d{3}')
+	#run=$(grep "CPU time" log/constraints_${dir}.noncanonical.simp* | grep -oP '\d+\.\d+')
 fi
 
 printf " n    Solving   Simplifying   Cubing \n"
 
 printf "%1d %10.2f m %10.2f m %10.2f m\n" $n "$run" "$simptime" "$cubetime"
-
-# grep -h "CPU time* *[0-9]*\.*[0-9]*" slurm-*.out | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
-# grep -h "c time * *[0-9]*\.*[0-9]*" *.log | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
-# grep -h "c total process time since initialization: * *[0-9]*\.*[0-9]*" *.simp | awk '{total += $(NF-1)} END {print "Total time: " total " seconds"}'
-
-# grep -h "CPU time* *[0-9]*\.*[0-9]*" slurm-*.out | awk '{print $(NF-1)}' > out_times.txt

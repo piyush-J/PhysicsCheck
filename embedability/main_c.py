@@ -167,7 +167,8 @@ def find_assignments(g):
 def not_zero_c(a):
     return Or(Not(a[0].r==0), Not(a[1].r==0), Not(a[2].r==0), Not(a[0].i==0), Not(a[1].i==0), Not(a[2].i==0))
 
-def determine_embed(g, assignment, g_sat, order, index, using_subgraph, output_unsat_f, output_sat_f, verify):
+def determine_embed(g, assignments, g_sat, order, index, using_subgraph, output_unsat_f, output_sat_f, verify):
+    assignment = assignments[int(index)]
     s = Solver()
     ver = {}
     assign_inv = defaultdict(list)
@@ -241,8 +242,7 @@ def determine_embed(g, assignment, g_sat, order, index, using_subgraph, output_u
     if result == unknown:
         print("Timeout reached: Embeddability unknown, checking next intepretation")
         index = int(index) + 1
-        s.reset()
-        main_single_graph(g_sat, order, index, using_subgraph, output_unsat_f, output_sat_f, verify)
+        determine_embed(g, assignments, g_sat, order, index, using_subgraph, output_unsat_f, output_sat_f, verify)
     if result == unsat:
         with open(output_unsat_f, "a+") as f:
             f.write(g_sat + "\n")
@@ -251,9 +251,12 @@ def determine_embed(g, assignment, g_sat, order, index, using_subgraph, output_u
             f.write(g_sat + "\n")
         if verify:
             m = s.model()
+            #normalize vectors
+            for vec in g:
+                ver[vec] = normalizec(ver[vec])
             #check all vectors are nonzero
             for vec in g:
-                if m.evaluate(ver[vec][0].r == 0) and m.evaluate(ver[vec][0].i == 0) and m.evaluate(ver[vec][1].r == 0) and m.evaluate(ver[vec][1].i == 0) and m.evaluate(ver[vec][2].r == 0) and m.evaluate(ver[vec][2].i == 0):
+                if m.evaluate(ver[vec][0] == 0) and m.evaluate(ver[vec][1] == 0) and m.evaluate(ver[vec][2] == 0):
                     print ("vector is the zero vector")
                     return
             #check non-colinear between all vertices
@@ -267,22 +270,22 @@ def determine_embed(g, assignment, g_sat, order, index, using_subgraph, output_u
             #check orthgonality between all connected vertices
             for vec in g:
                 for adj_vec in g[vec]:
-                    real_dot = (m.evaluate(dotc(ver[vec], ver[adj_vec]).r == 0))
-                    img_dot = (m.evaluate(dotc(ver[vec], ver[adj_vec]).i == 0))
-                    if not real_dot or not img_dot:
+                    real_dot = (m.evaluate(dotc(ver[vec], ver[adj_vec]) == 0))
+                    if not real_dot:
                         print ("connected vertices are not orthogonal, verification failed")
                         return
             #check three mutually connected vertices satisfy u=v cross w in some order
             for vec in g:
                 for vec_1 in g[vec]:
                     for vec_2 in g[vec]:
-                        if vec_1 != vec_2:
+                        if vec_1 in g[vec_2]:
                             cross_prod_1 = crossc(ver[vec_1], ver[vec_2])
-                            cross_prod_2 = crossc(ver[vec], cross_prod_1)
-                            if (not m.evaluate(cross_prod_2[0].r==0)) or (not m.evaluate(cross_prod_2[0].i==0)) or (not m.evaluate(cross_prod_2[1].r==0)) or (not m.evaluate(cross_prod_2[1].i==0)) or (not m.evaluate(cross_prod_2[2].r==0)) or (not m.evaluate(cross_prod_2[2].i==0)):
-                                print ("mutually orthogonal vectors does not satisfy cross product constraint, verification failed")
-                                return
-
+                            cross_prod_2 = crossc(ver[vec_2], ver[vec_1])
+                            cross_prod_1_check = m.evaluate(ver[vec][0] == cross_prod_1[0]) and m.evaluate(ver[vec][1] == cross_prod_1[1]) and m.evaluate(ver[vec][2] == cross_prod_1[2]) 
+                            cross_prod_2_check = m.evaluate(ver[vec][0] == cross_prod_2[0]) and m.evaluate(ver[vec][1] == cross_prod_2[1]) and m.evaluate(ver[vec][2] == cross_prod_2[2])
+                            if not cross_prod_1_check and not cross_prod_2_check:
+                                print ("mutually orthogonal vectors does not satisfy cross product constraint")
+                                return 
                         
 #graph in sat labeling format
 
@@ -327,14 +330,14 @@ def main_single_graph(g, order, index, using_subgraph, output_unsat_f, output_sa
             graph_dict[v] = (list(G.neighbors(v)))
         assignments = find_assignments(graph_dict)
         assignment = assignments[int(index)]
-        determine_embed(graph_dict, assignment, g, order, index, using_subgraph, output_unsat_f, output_sat_f, verify) #write the file
+        determine_embed(graph_dict, assignments, g, order, index, using_subgraph, output_unsat_f, output_sat_f, verify) #write the file
     else:
         graph_dict = {}
         for v in list(G.nodes()):
             graph_dict[v] = (list(G.neighbors(v)))
         assignments = find_assignments(graph_dict)
         assignment = assignments[int(index)]
-        determine_embed(graph_dict, assignment, g, order, index, using_subgraph, output_unsat_f, output_sat_f, verify) #write the file
+        determine_embed(graph_dict, assignments, g, order, index, using_subgraph, output_unsat_f, output_sat_f, verify) #write the file
         
 def main(file_to_solve, order, index, using_subgraph, output_unsat_f="output_unsat_f", output_sat_f="output_sat_f", verify=True):
     with open(file_to_solve) as f:
