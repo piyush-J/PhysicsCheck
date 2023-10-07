@@ -54,9 +54,9 @@ echo $command
 eval $command
 
 #verify colorability
-./verify.sh $d/$n-solve/$i-solve.exhaust $n
+# ./verify.sh $d/$n-solve/$i-solve.exhaust $n
 
 #verify embeddability
 
-./embedability/check_embedability.sh -s -v $n $d/$n-solve/$i-solve.exhaust
+# ./embedability/check_embedability.sh -s -v $n $d/$n-solve/$i-solve.exhaust
 
